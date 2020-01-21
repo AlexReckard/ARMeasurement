@@ -11,6 +11,8 @@ import SceneKit
 import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
+    
+    var dotNodesArray = [SCNNode]()
 
     @IBOutlet var sceneView: ARSCNView!
     
@@ -70,6 +72,46 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         );
         
         sceneView.scene.rootNode.addChildNode(dotNode)
+        
+        dotNodesArray.append(dotNode)
+        
+        if dotNodesArray.count >= 2 {
+            calculate()
+        };
+        
+    };
+    
+    func calculate() {
+    
+        let start = dotNodesArray[0]
+        let end = dotNodesArray[1]
+        
+        print(start.position)
+        print(end.position)
+        
+        // distance = √ ((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
+        let distance = sqrt(
+            pow(end.position.x - start.position.x, 2) +
+            pow(end.position.y - start.position.y, 2) +
+            pow(end.position.z - start.position.z, 2)
+        );
+        
+        updateText(text: "\(abs(distance))", atPosition: end.position)
+    };
+    
+    func updateText(text: String, atPosition position: SCNVector3) {
+        
+        let textGeometry = SCNText(string: text, extrusionDepth: 1.0)
+        
+        textGeometry.firstMaterial?.diffuse.contents = UIColor.red
+        
+        let textNode = SCNNode(geometry: textGeometry)
+        
+        textNode.position = SCNVector3(position.x, position.y + 0.01, position.z)
+        
+        textNode.scale = SCNVector3(0.01, 0.01, 0.01)
+        
+        sceneView.scene.rootNode.addChildNode(textNode)
         
     };
 };
